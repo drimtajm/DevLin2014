@@ -33,7 +33,7 @@
 -define(char_mode, 1).
 
 -define(call(Cmd), gen_server:call({global, ?SERVER}, Cmd)).
--record(state, {}).
+-record(state, {tref :: timer:tref()}).
 
 %%%===================================================================
 %%% API
@@ -58,10 +58,15 @@ init([]) ->
     {ok, #state{}}.
 
 handle_call({show_welcome_message, Name}, _From, State) ->
+    case State#state.tref of
+       undefined -> ok;
+       TRef0     -> timer:cancel(TRef0)
+    end,
+    send_command(clearscreen),
     display_string(unicode_decode("Välkommen,\n")++Name++"!"),
-    erlang:send_after(3000, self(), clearscreen),
+    {ok, TRef} = timer:send_after(3000, clearscreen),
     Reply = ok,
-    {reply, Reply, State};
+    {reply, Reply, State#state{tref = TRef}};
 handle_call(stop, _From, State) ->
     {stop, normal, ok, State}.
 
@@ -70,15 +75,15 @@ handle_cast(_Msg, State) ->
 
 handle_info(clearscreen, State) ->
     send_command(clearscreen),
-    {noreply, State}.
+    {noreply, State#state{tref=undefined}}.
 
 terminate(_Reason, _State) ->
     send_command(clearscreen),
     close_pins(),
     ok.
 
-code_change(_OldVsn, State, _Extra) ->
-    {ok, State}.
+code_change(_OldVsn, _State, _Extra) ->
+    {ok, #state{}}.
 
 %%%===================================================================
 %%% Internal functions
