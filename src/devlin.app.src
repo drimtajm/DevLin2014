@@ -1,6 +1,0 @@
-%% -*- erlang -*-
-{application, devlin,
- [{description, "Erlang demo for the DevLin conference"},
-  {vsn, "1"},
-  {modules, [scb_client]}
- ]}.

@@ -1,0 +1,8 @@
+%% -*- erlang -*-
+{application, display,
+ [{description, "Erlang demo display for the DevLin conference"},
+  {vsn, "1"},
+  {registered, [display_sup, display]},
+  {mod, {display_app, []}},
+  {modules, []}
+ ]}.

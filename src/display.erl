@@ -53,8 +53,10 @@ show_welcome_message(Name) ->
 %%%===================================================================
 
 init([]) ->
+    process_flag(trap_exit, true),
     open_and_configure_pins(),
-    send_command(clearscreen),
+    timer:sleep(100),
+    send_command(init),
     {ok, #state{}}.
 
 handle_call({show_welcome_message, Name}, _From, State) ->
@@ -70,7 +72,8 @@ handle_call({show_welcome_message, Name}, _From, State) ->
 handle_call(stop, _From, State) ->
     {stop, normal, ok, State}.
 
-handle_cast(_Msg, State) ->
+handle_cast(Msg, State) ->
+    error({unhandled_cast, Msg}),
     {noreply, State}.
 
 handle_info(clearscreen, State) ->
