@@ -23,7 +23,7 @@
 -define(lcdE, 8).
 -define(lcdD4, 17).
 -define(lcdD5, 18).
--define(lcdD6, 21).
+-define(lcdD6, 27).
 -define(lcdD7, 22).
 -define(pins, [?lcdRs, ?lcdE, ?lcdD4, ?lcdD5, ?lcdD6, ?lcdD7]). 
 -define(clearScreenCmd, 1).
