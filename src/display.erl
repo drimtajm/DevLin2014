@@ -11,7 +11,8 @@
 -behaviour(gen_server).
 
 %% API
--export([start_link/0, show_welcome_message/1, enable_debug/0, stop/0]).
+-export([start_link/0, show_welcome_message/1,
+	 enable_debug/0, disable_debug/0, stop/0]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -52,6 +53,9 @@ show_welcome_message(Name) ->
 enable_debug() ->
     ?call(enable_debug).
 
+disable_debug() ->
+    ?call(disable_debug).
+
 %%%===================================================================
 %%% gen_server callbacks
 %%%===================================================================
@@ -79,6 +83,8 @@ handle_call({show_welcome_message, Name}, _From, State) ->
     {reply, Reply, State#state{tref = TRef}};
 handle_call(enable_debug, _From, State) ->
     {reply, ok, State#state{debug = true}};
+handle_call(disable_debug, _From, State) ->
+    {reply, ok, State#state{debug = false}};
 handle_call(stop, _From, State) ->
     {stop, normal, ok, State}.
 
