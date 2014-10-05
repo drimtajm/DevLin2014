@@ -24,13 +24,21 @@ get_pi_mac_from_devices(Devices) ->
 
 bt_discover_pi() ->
     io:format("{ok, Devs} = bluetooth_interface:discover(),~n"),
-    {ok, Devs} = bluetooth_interface:discover(),
+    {ok, Devs0} = bluetooth_interface:discover(),
+    Devs = case Devs0 of
+	       []    -> ["00:02:72:c0:64:11"];
+	       _Else -> Devs0
+	   end,
     io:format("helper:get_pi_mac_from_devices(~p).~n", [Devs]),
     get_pi_mac_from_devices(Devs).
 
 bt_name(Mac) ->
     io:format("bluetooth_interface:get_remote_name(~p).~n", [Mac]),
-    bluetooth_interface:get_remote_name(Mac).
+    Name0 = bluetooth_interface:get_remote_name(Mac),
+    case Name0 of
+	unknown -> "datorbebis";
+	_Else   -> Name0
+    end.
 
 get_bt_name_and_send(Mac) ->
     {ok, Name} = bt_name(Mac),
@@ -75,3 +83,9 @@ recursion_helper(Fun) ->
     after 0 ->
 	    recursion_helper(Fun)
     end.		    
+
+phone_mac() ->
+    "98:0D:2E:0F:73:13".
+
+phone_name() ->
+    "4stone".
