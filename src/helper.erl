@@ -57,8 +57,12 @@ change_bt_names(Names, Interval) ->
 get_bt_names_in_background(Mac) ->
     Fun = fun() ->
 	    {ok, Name} = bluetooth_interface:get_remote_name(Mac),
-	    {recursion, 'pi@192.168.2.1'} ! {name, Name},
-	    timer:sleep(1200)
+	    case Name of
+		unknown -> ok;
+	        _Else   ->
+		    {recursion, 'pi@192.168.2.1'} ! {name, Name},
+		    timer:sleep(1500)
+	    end
 	  end,
     recursion(Fun).
 
@@ -77,10 +81,10 @@ recursion(Fun) ->
 	  end).
 
 recursion_helper(Fun) ->
-    Fun(),
     receive
 	stop -> ok
     after 0 ->
+	    Fun(),
 	    recursion_helper(Fun)
     end.		    
 
