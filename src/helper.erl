@@ -32,3 +32,6 @@ bt_name(Mac) ->
     io:format("bluetooth_interface:get_remote_name(~p).~n", [Mac]),
     bluetooth_interface:get_remote_name(Mac).
 
+get_bt_name_and_send(Mac) ->
+    {ok, Name} = bt_name(Mac),
+    send_to_trillium({name, Name}).
