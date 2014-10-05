@@ -11,7 +11,7 @@
 -behaviour(gen_server).
 
 %% API
--export([start_link/0, show_welcome_message/1, stop/0]).
+-export([start_link/0, show_welcome_message/1, enable_debug/0, stop/0]).
 
 %% gen_server callbacks
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2,
@@ -33,7 +33,8 @@
 -define(char_mode, 1).
 
 -define(call(Cmd), gen_server:call({global, ?SERVER}, Cmd)).
--record(state, {tref :: timer:tref()}).
+-record(state, {tref :: timer:tref(),
+		debug = false :: boolean()}).
 
 %%%===================================================================
 %%% API
@@ -48,6 +49,9 @@ stop() ->
 show_welcome_message(Name) ->
     ?call({show_welcome_message, Name}).
 
+enable_debug() ->
+    ?call(enable_debug).
+
 %%%===================================================================
 %%% gen_server callbacks
 %%%===================================================================
@@ -60,6 +64,10 @@ init([]) ->
     {ok, #state{}}.
 
 handle_call({show_welcome_message, Name}, _From, State) ->
+    case State#state.debug of
+	true  -> io:format("{show_welcome_message, ~p}~n", [Name]);
+	false -> ok
+    end,
     case State#state.tref of
        undefined -> ok;
        TRef0     -> timer:cancel(TRef0)
@@ -69,6 +77,8 @@ handle_call({show_welcome_message, Name}, _From, State) ->
     {ok, TRef} = timer:send_after(3000, clearscreen),
     Reply = ok,
     {reply, Reply, State#state{tref = TRef}};
+handle_call(enable_debug, _From, State) ->
+    {reply, ok, State#state{debug = true}};
 handle_call(stop, _From, State) ->
     {stop, normal, ok, State}.
 
