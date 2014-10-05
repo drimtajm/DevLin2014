@@ -35,3 +35,33 @@ bt_name(Mac) ->
 get_bt_name_and_send(Mac) ->
     {ok, Name} = bt_name(Mac),
     send_to_trillium({name, Name}).
+
+get_bt_names_in_background(Mac) ->
+    Fun = fun() ->
+	    {ok, Name} = bluetooth_interface:get_remote_name(Mac),
+	    {recursion, 'pi@192.168.2.1'} ! {name, Name},
+	    timer:sleep(1500)
+	  end,
+    recursion(Fun).
+
+receive_bt_names_in_background() ->
+    Fun = fun() ->
+	    receive {name, Name} ->
+		    display:show_welcome_message(Name)
+	    end
+	  end,
+    recursion(Fun).
+
+recursion(Fun) ->
+    spawn(fun() ->
+		  register(recursion, self()),
+		  recursion_helper(Fun)
+	  end).
+
+recursion_helper(Fun) ->
+    Fun(),
+    receive
+	stop -> ok
+    after 0 ->
+	    recursion_helper(Fun)
+    end.		    
